@@ -14,15 +14,18 @@ To use **this fork's TV interface**, build the APK from this repository using th
 [<img height="48" alt="Get it on F-Droid" src="https://jqssun.github.io/images/badges/fdroid.svg">](https://f-droid.org/packages/io.github.jqssun.airplay)
 [<img height="48" alt="Get it on GitHub" src="https://jqssun.github.io/images/badges/github.svg">](https://github.com/jqssun/android-airplay-server/releases/latest)
 
-![TV Overview with an expanded navigation sidebar, centered receiver and network names, and a Stop button](docs/screenshots/tv-overview.png)
+## Screenshots
 
-### Logs
-
-![TV Logs with receiver activity, export and clear controls, and the expanded navigation sidebar](docs/screenshots/tv-logs.png)
-
-### Settings
-
-![TV Settings with the Server category focused, receiver name and port fields, startup and background switches, and an icon-only sidebar](docs/screenshots/tv-settings.png)
+<table>
+  <tr>
+    <td align="center"><strong>Overview</strong><br><img src="docs/screenshots/tv-overview.png" width="360" alt="TV Overview with receiver status, network name, and navigation sidebar"></td>
+    <td align="center"><strong>Logs</strong><br><img src="docs/screenshots/tv-logs.png" width="360" alt="TV Logs with receiver activity and export and clear controls"></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Settings</strong><br><img src="docs/screenshots/tv-settings.png" width="360" alt="TV Settings with grouped categories, text fields, and switches"></td>
+    <td align="center"><strong>AirPlay PIN</strong><br><img src="docs/screenshots/tv-passcode.png" width="360" alt="Full-screen AirPlay pairing code displayed in four large digit tiles"></td>
+  </tr>
+</table>
 
 Screenshots show this fork running in the Android TV emulator.
 
