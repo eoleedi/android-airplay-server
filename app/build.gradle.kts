@@ -12,19 +12,25 @@ val localProps = Properties().apply {
 }
 
 val allAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+val releaseStoreFile = providers.environmentVariable("RELEASE_STORE_FILE")
+    .orNull ?: localProps.getProperty("storeFile")
+
+fun signingProperty(environment: String, local: String): String =
+    providers.environmentVariable(environment).orNull ?: localProps.getProperty(local)
+    ?: error("Missing release signing property: $environment (or $local in local.properties)")
 
 android {
     namespace = "io.github.jqssun.airplay"
     compileSdk = 37
     ndkVersion = "27.0.12077973"
 
-    if (localProps.containsKey("storeFile")) {
+    if (releaseStoreFile != null) {
         signingConfigs {
             create("release") {
-                storeFile = file(localProps.getProperty("storeFile"))
-                storePassword = localProps.getProperty("storePassword")
-                keyAlias = localProps.getProperty("keyAlias")
-                keyPassword = localProps.getProperty("keyPassword")
+                storeFile = file(releaseStoreFile)
+                storePassword = signingProperty("RELEASE_STORE_PASSWORD", "storePassword")
+                keyAlias = signingProperty("RELEASE_KEY_ALIAS", "keyAlias")
+                keyPassword = signingProperty("RELEASE_KEY_PASSWORD", "keyPassword")
             }
         }
     }
@@ -33,8 +39,8 @@ android {
         applicationId = "io.github.jqssun.airplay"
         minSdk = 23
         targetSdk = 37
-        versionCode = 36
-        versionName = "0.0.36"
+        versionCode = 100
+        versionName = "0.1.0"
 
         externalNativeBuild {
             cmake {
