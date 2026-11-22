@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="tv_network_label">Network: %1$s</string>
+    <string name="tv_network_wifi">Wi-Fi connected</string>
+    <string name="tv_network_ethernet">Ethernet</string>
+    <string name="tv_network_connected">Connected</string>
+    <string name="tv_network_disconnected">Not connected</string>
+    <string name="tv_network_unavailable">Unavailable</string>
+    <string name="tv_network_show_name">Show Wi-Fi name</string>
+    <string name="tv_network_permission_hint">Android needs location permission and Location enabled to show the Wi-Fi name.</string>
     <string name="tv_ready">Ready for AirPlay</string>
     <string name="tv_receiving">Receiving AirPlay</string>
     <string name="tv_connect_to">Connect to</string>

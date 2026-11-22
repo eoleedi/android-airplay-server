@@ -161,6 +161,8 @@ internal fun TvOverviewContent(
                 Spacer(Modifier.height(8.dp))
                 Text(name, style = MaterialTheme.typography.displaySmall, maxLines = 2,
                     overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
+                Spacer(Modifier.height(16.dp))
+                TvNetworkInfo()
                 if (grant || !running) {
                     Spacer(Modifier.height(28.dp))
                     Text(stringResource(if (grant) R.string.local_network_desc else R.string.tv_start_hint),
