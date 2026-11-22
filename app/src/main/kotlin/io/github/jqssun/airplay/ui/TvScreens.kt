@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -221,6 +222,14 @@ internal fun TvSettingsScreen(viewModel: MainViewModel) {
         Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             Column(
                 Modifier.width(164.dp).fillMaxHeight().verticalScroll(rememberScrollState())
+                    .focusProperties {
+                        onEnter = {
+                            // Returning from options must not select the nearest tab by height.
+                            if (requestedFocusDirection == FocusDirection.Left) {
+                                sectionFocus[section].requestFocus()
+                            }
+                        }
+                    }
                     .focusGroup(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
