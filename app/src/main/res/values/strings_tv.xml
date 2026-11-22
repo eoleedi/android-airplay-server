@@ -8,6 +8,8 @@
     <string name="tv_network_unavailable">Unavailable</string>
     <string name="tv_network_show_name">Show Wi-Fi name</string>
     <string name="tv_network_permission_hint">Android needs location permission and Location enabled to show the Wi-Fi name.</string>
+    <string name="tv_passcode_instruction">Enter this code on your Apple device to connect.</string>
+    <string name="tv_passcode_digits">AirPlay passcode: %1$s</string>
     <string name="tv_ready">Ready for AirPlay</string>
     <string name="tv_receiving">Receiving AirPlay</string>
     <string name="tv_connect_to">Connect to</string>
