@@ -17,8 +17,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
@@ -36,7 +43,11 @@ import androidx.compose.ui.res.stringResource
 import kotlin.math.roundToInt
 
 @Composable
-fun SettingsScreen(viewModel: MainViewModel) {
+fun SettingsScreen(viewModel: MainViewModel, section: Int? = null) {
+    if (isTv() && section == null) {
+        TvSettingsScreen(viewModel)
+        return
+    }
     val serverName by viewModel.pref(Prefs.SERVER_NAME).collectAsState()
     val h265 by viewModel.pref(Prefs.H265).collectAsState()
     val enforceSdr by viewModel.pref(Prefs.ENFORCE_SDR).collectAsState()
@@ -87,6 +98,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
             .verticalScroll(rememberScrollState())
             .padding(vertical = 8.dp)
     ) {
+        if (section == null || section == 0) {
         SectionHeader(stringResource(R.string.section_server))
 
         SettingTextField(
@@ -116,6 +128,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
             onCheckedChange = { viewModel.set(Prefs.RUN_IN_BACKGROUND, it) }
         )
 
+        }
+        if (section == null || section == 1) {
         SectionHeader(stringResource(R.string.section_connection))
 
         SettingSegmented(
@@ -156,6 +170,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
         val needsOverlayPermission = launchOnConnect && !hasOverlayPermission
         val autoLaunch = launchOnConnect && hasOverlayPermission
         ListItem(
+            colors = settingsItemColors(),
             modifier = Modifier
                 .dpadFocus(RectangleShape)
                 .toggleable(
@@ -178,6 +193,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
             }
         )
 
+        }
+        if (section == null || section == 2) {
         SectionHeader(stringResource(R.string.section_display))
 
         SettingSwitch(
@@ -209,6 +226,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
             onCheckedChange = { viewModel.set(Prefs.OVERSCANNED, it) }
         )
 
+        }
+        if (section == null || section == 3) {
         SectionHeader(stringResource(R.string.section_decode))
 
         SettingChips(
@@ -240,16 +259,20 @@ fun SettingsScreen(viewModel: MainViewModel) {
             onCheckedChange = { viewModel.set(Prefs.SYNC_CLIENT_VOLUME, it) }
         )
 
+        }
+        if (section == null || section == 4) {
         SectionHeader(stringResource(R.string.section_developer))
 
-        SettingSwitch(
-            title = stringResource(R.string.setting_developer_options),
-            description = stringResource(R.string.setting_developer_options_desc),
-            checked = developerOptions,
-            onCheckedChange = { viewModel.set(Prefs.DEVELOPER_OPTIONS, it) }
-        )
+        if (section == null) {
+            SettingSwitch(
+                title = stringResource(R.string.setting_developer_options),
+                description = stringResource(R.string.setting_developer_options_desc),
+                checked = developerOptions,
+                onCheckedChange = { viewModel.set(Prefs.DEVELOPER_OPTIONS, it) }
+            )
+        }
 
-        if (developerOptions) {
+        if (section == 4 || developerOptions) {
             SettingSwitch(
                 title = stringResource(R.string.setting_auto_start),
                 description = stringResource(R.string.setting_auto_start_desc),
@@ -359,6 +382,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
             if (audioLatencyMs >= 0) {
                 var sliderVal by remember(audioLatencyMs) { mutableFloatStateOf(audioLatencyMs.toFloat()) }
                 ListItem(
+                    colors = settingsItemColors(),
                     headlineContent = {
                         Slider(
                             value = sliderVal,
@@ -387,6 +411,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 val maxStep = Prefs.AUDIO_ADAPTIVE_STEP.range.last
                 var stepVal by remember(audioAdaptiveStep) { mutableFloatStateOf(audioAdaptiveStep.toFloat()) }
                 ListItem(
+                    colors = settingsItemColors(),
                     headlineContent = {
                         Slider(
                             value = stepVal,
@@ -440,6 +465,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 onCheckedChange = { viewModel.set(Prefs.BENCHMARK_LOG, it) }
             )
         }
+        }
     }
 }
 
@@ -489,6 +515,7 @@ private fun SettingResolution(
     var height by remember(value) { mutableStateOf(if (isPreset) "" else parts.getOrElse(1) { "" }) }
 
     ListItem(
+        colors = settingsItemColors(),
         headlineContent = { Text(stringResource(R.string.setting_resolution)) },
         supportingContent = {
             Column {
@@ -504,37 +531,37 @@ private fun SettingResolution(
                             onValueChange(key)
                         },
                         label = { Text(label) },
-                        modifier = Modifier.dpadFocus()
+                        modifier = Modifier.dpadFocus(FilterChipDefaults.shape)
                     )
                     presets.forEach { (key, label) -> presetChip(key, label) }
                     FilterChip(
                         selected = !isPreset || editing,
                         onClick = { editing = true },
                         label = { Text(stringResource(R.string.chip_custom)) },
-                        modifier = Modifier.dpadFocus()
+                        modifier = Modifier.dpadFocus(FilterChipDefaults.shape)
                     )
                     devicePresets.forEach { (key, label) -> presetChip(key, label) }
                 }
                 if (editing || !isPreset) {
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
+                        SettingsTextInput(
                             value = width,
                             onValueChange = { width = it.filter { c -> c.isDigit() }.take(5) },
                             singleLine = true,
                             label = { Text(stringResource(R.string.setting_resolution_width)) },
-                            keyboardOptions = KeyboardOptions(
+                            keyboardOptions = settingsKeyboardOptions(
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Next
                             ),
                             modifier = Modifier.weight(1f)
                         )
-                        OutlinedTextField(
+                        SettingsTextInput(
                             value = height,
                             onValueChange = { height = it.filter { c -> c.isDigit() }.take(5) },
                             singleLine = true,
                             label = { Text(stringResource(R.string.setting_resolution_height)) },
-                            keyboardOptions = KeyboardOptions(
+                            keyboardOptions = settingsKeyboardOptions(
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Done
                             ),
@@ -574,14 +601,14 @@ private fun SettingTextField(
     fun save() {
         if (valid && text != value) onCommit(text)
     }
-    OutlinedTextField(
+    SettingsTextInput(
         value = text,
         onValueChange = { text = if (range == null) it else it.filter { c -> c.isDigit() }.take(6) },
         label = { Text(label) },
         supportingText = description?.let { { Text(it) } },
         singleLine = true,
         isError = !valid,
-        keyboardOptions = KeyboardOptions(
+        keyboardOptions = settingsKeyboardOptions(
             keyboardType = if (range == null) KeyboardType.Text else KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
@@ -609,6 +636,7 @@ private fun SettingChipField(
     var text by remember(value) { mutableStateOf(if (isPreset) "" else value) }
 
     ListItem(
+        colors = settingsItemColors(),
         headlineContent = { Text(title) },
         supportingContent = {
             Column {
@@ -619,17 +647,17 @@ private fun SettingChipField(
                         selected = !isPreset || editing,
                         onClick = { editing = true },
                         label = { Text(stringResource(R.string.chip_custom)) },
-                        modifier = Modifier.dpadFocus()
+                        modifier = Modifier.dpadFocus(FilterChipDefaults.shape)
                     )
                 }
                 if (editing || !isPreset) {
                     Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
+                    SettingsTextInput(
                         value = text,
                         onValueChange = { text = it },
                         singleLine = true,
                         label = { Text(placeholder) },
-                        keyboardOptions = KeyboardOptions(
+                        keyboardOptions = settingsKeyboardOptions(
                             keyboardType = keyboardType,
                             imeAction = ImeAction.Done
                         ),
@@ -661,7 +689,7 @@ private fun ChipRow(
                 selected = value == key,
                 onClick = { onSelect(key) },
                 label = { Text(label) },
-                modifier = Modifier.dpadFocus()
+                modifier = Modifier.dpadFocus(FilterChipDefaults.shape)
             )
         }
         trailing()
@@ -677,6 +705,7 @@ private fun SettingChips(
     onValueChange: (String) -> Unit
 ) {
     ListItem(
+        colors = settingsItemColors(),
         headlineContent = { Text(title) },
         supportingContent = {
             Column {
@@ -697,6 +726,7 @@ private fun <T> SettingSegmented(
     onValueChange: (T) -> Unit
 ) {
     ListItem(
+        colors = settingsItemColors(),
         headlineContent = { Text(title) },
         supportingContent = {
             Column {
@@ -721,6 +751,76 @@ private fun <T> SettingSegmented(
 }
 
 @Composable
+private fun settingsKeyboardOptions(keyboardType: KeyboardType, imeAction: ImeAction) =
+    KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction, showKeyboardOnFocus = !isTv())
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun SettingsTextInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: @Composable () -> Unit,
+    supportingText: (@Composable () -> Unit)? = null,
+    singleLine: Boolean = true,
+    isError: Boolean = false,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
+) {
+    val tv = isTv()
+    var editing by remember { mutableStateOf(false) }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    val keyboardVisible = WindowInsets.isImeVisible
+    LaunchedEffect(keyboardVisible) {
+        if (!keyboardVisible) editing = false
+    }
+    LaunchedEffect(editing) {
+        if (editing) {
+            withFrameNanos { }
+            keyboard?.show()
+        }
+    }
+    OutlinedTextField(
+        value = value, onValueChange = onValueChange, label = label,
+        supportingText = supportingText, singleLine = singleLine, isError = isError,
+        readOnly = tv && !editing,
+        keyboardOptions = keyboardOptions, keyboardActions = keyboardActions,
+        modifier = if (!tv) modifier else modifier
+            .onFocusChanged { if (!it.isFocused) editing = false }
+            .onPreviewKeyEvent {
+                when {
+                    it.key == Key.DirectionCenter || it.key == Key.Enter || it.key == Key.NumPadEnter -> {
+                        if (it.type == KeyEventType.KeyUp) {
+                            if (editing) keyboard?.show() else editing = true
+                        }
+                        true
+                    }
+                    !editing -> {
+                        val direction = when (it.key) {
+                            Key.DirectionLeft -> androidx.compose.ui.focus.FocusDirection.Left
+                            Key.DirectionRight -> androidx.compose.ui.focus.FocusDirection.Right
+                            Key.DirectionUp -> androidx.compose.ui.focus.FocusDirection.Up
+                            Key.DirectionDown -> androidx.compose.ui.focus.FocusDirection.Down
+                            else -> null
+                        }
+                        if (direction != null) {
+                            if (it.type == KeyEventType.KeyDown) focusManager.moveFocus(direction)
+                            true
+                        } else false
+                    }
+                    else -> false
+                }
+            }
+    )
+}
+
+@Composable
+private fun settingsItemColors(): ListItemColors =
+    if (isTv()) ListItemDefaults.colors(containerColor = Color.Transparent)
+    else ListItemDefaults.colors()
+
+@Composable
 private fun SettingSwitch(
     title: String,
     description: String,
@@ -728,6 +828,7 @@ private fun SettingSwitch(
     onCheckedChange: (Boolean) -> Unit
 ) {
     ListItem(
+        colors = settingsItemColors(),
         modifier = Modifier
             .dpadFocus(RectangleShape)
             .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange),

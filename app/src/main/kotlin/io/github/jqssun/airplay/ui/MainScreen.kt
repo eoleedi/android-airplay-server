@@ -515,6 +515,19 @@ fun MainScreen(
             onExitFullscreen = { fullscreen = false },
             onPip = onPip
         )
+    } else if (isTv()) {
+        TvAppLayout(
+            selected = tab.ordinal,
+            labels = Tab.entries.map { stringResource(it.labelRes) },
+            icons = Tab.entries.map { it.icon },
+            onSelect = { tab = Tab.entries[it] }
+        ) {
+            TabContent(
+                tab, viewModel, video,
+                onFullscreen = { fullscreen = true }, onPip = onPip,
+                onLocalNetwork = onLocalNetwork, showAudioMode = audioOnly
+            )
+        }
     } else {
         Scaffold(
             bottomBar = {
@@ -598,6 +611,12 @@ private fun OverviewContent(
     onLocalNetwork: () -> Unit,
     showAudioMode: Boolean = false
 ) {
+    if (isTv()) {
+        TvOverviewContent(viewModel, video, onFullscreen, onLocalNetwork, showAudioMode) {
+            NowPlayingContent(viewModel)
+        }
+        return
+    }
     val state by viewModel.serverState.collectAsState()
     val localNetwork by viewModel.localNetwork.collectAsState()
     val grant = state != ServerState.RUNNING && localNetwork != LocalNetworkAccess.GRANTED
@@ -664,13 +683,13 @@ private fun OverviewContent(
                 }
                 if (state == ServerState.RUNNING && mirroringActive) {
                     Row(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
-                        IconButton(onClick = onPip, modifier = Modifier.dpadFocus()) {
+                        IconButton(onClick = onPip, modifier = Modifier.dpadFocus(CircleShape)) {
                             Icon(
                                 painterResource(R.drawable.ic_pip), contentDescription = stringResource(R.string.cd_pip),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
                         }
-                        IconButton(onClick = onFullscreen, modifier = Modifier.dpadFocus()) {
+                        IconButton(onClick = onFullscreen, modifier = Modifier.dpadFocus(CircleShape)) {
                             Icon(
                                 Icons.Default.Fullscreen, contentDescription = stringResource(R.string.cd_fullscreen),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
@@ -802,13 +821,13 @@ private fun FullscreenVideo(
             modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Row(modifier = Modifier.padding(8.dp)) {
-                IconButton(onClick = onPip, modifier = Modifier.dpadFocus()) {
+                IconButton(onClick = onPip, modifier = Modifier.dpadFocus(CircleShape)) {
                     Icon(
                         painterResource(R.drawable.ic_pip), contentDescription = stringResource(R.string.cd_pip),
                         tint = Color.White.copy(alpha = 0.7f)
                     )
                 }
-                IconButton(onClick = onExitFullscreen, modifier = Modifier.dpadFocus()) {
+                IconButton(onClick = onExitFullscreen, modifier = Modifier.dpadFocus(CircleShape)) {
                     Icon(
                         Icons.Default.FullscreenExit, contentDescription = stringResource(R.string.cd_exit_fullscreen),
                         tint = Color.White.copy(alpha = 0.7f)
@@ -974,13 +993,13 @@ private fun NowPlayingContent(viewModel: MainViewModel) {
                     onBegin = { viewModel.audioScanBegin(false) },
                     onEnd = { viewModel.audioScanEnd() }
                 )
-                PreviousButton(player, modifier = Modifier.dpadFocus())
+                PreviousButton(player, modifier = Modifier.dpadFocus(CircleShape))
                 PlayPauseButton(
                     player,
                     modifier = Modifier.size(63.dp).dpadFocus(CircleShape),
                     iconSize = 40.dp
                 )
-                NextButton(player, modifier = Modifier.dpadFocus())
+                NextButton(player, modifier = Modifier.dpadFocus(CircleShape))
                 HoldScanButton(
                     icon = Icons.Default.FastForward,
                     contentDescription = stringResource(R.string.cd_fast_forward),

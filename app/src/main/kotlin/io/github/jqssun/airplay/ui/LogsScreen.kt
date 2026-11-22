@@ -1,5 +1,7 @@
 package io.github.jqssun.airplay.ui
 
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,10 +46,10 @@ fun LogsScreen(viewModel: MainViewModel) {
             TopAppBar(
                 title = { Text(stringResource(R.string.tab_logs)) },
                 actions = {
-                    IconButton(onClick = viewModel::exportLogs, modifier = Modifier.dpadFocus()) {
+                    IconButton(onClick = viewModel::exportLogs, modifier = Modifier.dpadFocus(CircleShape)) {
                         Icon(Icons.Outlined.Share, stringResource(R.string.btn_export))
                     }
-                    IconButton(onClick = viewModel::clearLogs, modifier = Modifier.dpadFocus()) {
+                    IconButton(onClick = viewModel::clearLogs, modifier = Modifier.dpadFocus(CircleShape)) {
                         Icon(Icons.Outlined.Delete, stringResource(R.string.btn_clear))
                     }
                 },

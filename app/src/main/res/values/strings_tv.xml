@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_ready">Ready for AirPlay</string>
+    <string name="tv_receiving">Receiving AirPlay</string>
+    <string name="tv_connect_to">Connect to</string>
+    <string name="tv_start_hint">Start the receiver to make this TV available for AirPlay.</string>
+    <string name="tv_background_hint">Manage startup and background behavior in Settings.</string>
+</resources>

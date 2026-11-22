@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,8 +41,10 @@ fun isTv(): Boolean {
 
 fun Modifier.dpadFocus(shape: Shape = RoundedCornerShape(12.dp)): Modifier = composed {
     var focused by remember { mutableStateOf(false) }
-    onFocusChanged { focused = it.isFocused }
-        .border(2.dp, if (focused) MaterialTheme.colorScheme.primary else Color.Transparent, shape)
+    val tv = isTv()
+    onFocusChanged { focused = it.hasFocus }
+        .thenIf(tv && focused) { background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), shape) }
+        .border(if (tv) 3.dp else 2.dp, if (focused) MaterialTheme.colorScheme.primary else Color.Transparent, shape)
 }
 
 fun Modifier.dpadAdjust(onLeft: () -> Unit, onRight: () -> Unit): Modifier = composed {
