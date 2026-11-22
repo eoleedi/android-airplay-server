@@ -195,6 +195,14 @@ private fun TvServerButton(
     FilledTonalButton(
         onClick = { if (grant) onLocalNetwork() else if (running) viewModel.stopServer() else viewModel.startServer() },
         modifier = Modifier.heightIn(min = 56.dp).dpadFocus(ButtonDefaults.shape),
+        colors = if (running && !grant) {
+            ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            )
+        } else {
+            ButtonDefaults.filledTonalButtonColors()
+        },
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp)
     ) {
         Icon(if (grant) Icons.Default.LockOpen else if (running) Icons.Default.Stop else Icons.Default.PlayArrow, null)
